@@ -1,0 +1,39 @@
+version: "3"
+
+volumes:
+  node_modules:
+    driver: local
+
+networks:
+  react_express:
+    driver: bridge
+
+services:
+  front:
+    build:
+      context: .
+      dockerfile: ./front/Dockerfile
+    container_name: webSocket-front
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./front:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    tty: true
+    command: sh -c "cd socket-app && npm run dev"
+    networks:
+      - react_express
+  back:
+    build:
+      dockerfile: ./back/Dockerfile
+    container_name: webSocket-back
+    restart: always
+    ports:
+      - "5000:5000"
+    tty: true
+    volumes:
+      - ./back:/app
+    working_dir: /app
+    command: npm run dev
+    networks:
+      - react_express
